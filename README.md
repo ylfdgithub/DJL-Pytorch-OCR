@@ -4,7 +4,7 @@
 
 代码部分要求纯java实现，同时运行环境为ARM+LINUX，而OCR在所难免需要一些类似 .so 动态库的额外依赖，所以最终选择通过DJL（Deep Java Library）运行Paddle转Pytorch的模型。
 
-![image-20220828143714666](C:\Users\YLF\AppData\Roaming\Typora\typora-user-images\image-20220828143714666.png)
+![image](https://user-images.githubusercontent.com/81354516/187064287-a5d011ec-53d9-4d25-b2db-4d1dec9b0839.png)
 
 ### 实现部分
 
@@ -97,7 +97,7 @@
 
 ##### 模型准备
 
-![image-20220828150041168](C:\Users\YLF\AppData\Roaming\Typora\typora-user-images\image-20220828150041168.png)
+![image](https://user-images.githubusercontent.com/81354516/187064320-0d8289c0-2563-4611-a55f-ff2218fb1f62.png)
 
 随便找个位置放一下就行，记得ppocr_keys_v1.txt和rec模型放一个目录下，因为这个字符对照文件也是要加载的，默认是和识别模型相同目录下。
 
@@ -107,26 +107,24 @@
 
 DJL在加载模型的时候需要指定translator，大概就是进行模型的输入输出的处理，就比如Pytorch模型只认识你Tensor或者NDArray类型的输入，那么Translator就可以对输入进行处理，也可以对模型的输出进行处理。DJL其实是有提供一些预设的Translator的，但是好像大家很少拿Pytorch来搞OCR，所以貌似DJL没有提供OCR相关的Translator，这个问题也不大，Translator是可以自定义的，只需要自己创建一个java类然后实现官方提供的接口之后重写两个处理输入输出的方法即可。但这里面就涉及到对NDArray类型的处理，这个和Python里面那个是一样的，但是本人其实也不是很懂，只知道是多维数组的数据结构，对深度学习进行了优化，模型处理起来效率更高。让我自定义就有点难了，万幸的是这俩模型是Paddle转过来的，而Paddle其实给我们写了对应的Translator，实测是可以直接用的。
 
-![image-20220828151805922](C:\Users\YLF\AppData\Roaming\Typora\typora-user-images\image-20220828151805922.png)
+![image](https://user-images.githubusercontent.com/81354516/187064330-8de1caf7-863f-4380-8295-5c566dfb545e.png)
 
 ###### PpWordDetectionTranslator
 
 这个Translator是给区域识别的模型用的，代码太长我就不贴了，实际上和DJL Paddle的依赖中提供的是一模一样的
 
-![image-20220828152042506](C:\Users\YLF\AppData\Roaming\Typora\typora-user-images\image-20220828152042506.png)
+![image](https://user-images.githubusercontent.com/81354516/187064336-bcd792e5-6285-4cc1-a235-6142554ee4ac.png)
 
 ###### PpWordRecognitionTranslator
 
 这个就是给文字识别模型用的
-
-![image-20220828152502641](C:\Users\YLF\AppData\Roaming\Typora\typora-user-images\image-20220828152502641.png)
+![image](https://user-images.githubusercontent.com/81354516/187064338-92fd45c4-e1de-4e59-afea-4e19c8a8419e.png)
 
 ###### BoundFinder
 
 这个是区域识别额外依赖的一个文件，这里也稍微贴一下，没有细究是干什么的
 
-![image-20220828152523545](C:\Users\YLF\AppData\Roaming\Typora\typora-user-images\image-20220828152523545.png)
-
+![image](https://user-images.githubusercontent.com/81354516/187064345-c2f7ffca-2fee-4297-8ddf-d0abf9e4f894.png)
 ##### 模型初始化以及Predictor生成
 
 ```java
